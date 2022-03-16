@@ -1,0 +1,19 @@
+{
+  "name": "@ddd/root",
+  "private": true,
+  "scripts": {
+    "start": "lerna run --scope @ddd/* --parallel start",
+    "build": "lerna run --scope @ddd/* --parallel build",
+    "serve": "lerna run --scope @ddd/* --parallel serve",
+    "clean": "lerna run --scope @ddd/* --parallel clean",
+    "lint": "lerna run --scope @ddd/root-app lint",
+    "bootstrap": "lerna bootstrap --ignore-scripts",
+    "add:root-app": "lerna add --scope @ddd/root-app "
+  },
+  "devDependencies": {
+    "lerna": "^4.0.0"
+  },
+  "workspaces": [
+    "packages/*"
+  ]
+}
