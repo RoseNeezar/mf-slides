@@ -116,6 +116,9 @@ sx={{'& p': {textAlign: 'left', m: 0, lineHeight: 'small', minHeight: '5%'}}}
 
 ### 3. The idea with federation is to use actual components that are part of another webpack builder production application
 
+### 4. When we are accessing a federated module we are not accessing out of our webpack dependency graph but we are going through our dependency graph and into the other closure wherever the actual one is exposed
+
+
 </Step>
 
 </Grid>
@@ -364,3 +367,12 @@ sx={{'& p': {textAlign: 'left', m: 0, lineHeight: 'small', minHeight: '5%'}}}
 # Q&A
 
 ???
+
+---
+
+# References
+
+### 1. https://webpack.js.org/concepts/module-federation/
+### 2. https://netflixtechblog.com/how-we-build-micro-frontends-with-lattice-22b8635f77ea
+### 3. https://github.com/module-federation/module-federation-examples
+### 4. https://single-spa.js.org/
