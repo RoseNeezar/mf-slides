@@ -42,6 +42,7 @@ module.exports = {
       remotes: {},
       exposes: {
         './Chat': './src/bootstrap',
+        './RemoteButton': './src/RemoteButton',
       },
       shared: {
         ...deps,

@@ -16,6 +16,8 @@ const HtmlWebPackPlugin = require('html-webpack-plugin');
 const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 
 const deps = require('./package.json').dependencies;
+
+const inDevelopmentMode = process.env.NODE_ENV !== 'production';
 // // Variables
 const PUBLIC_PATH = process.env.PUBLIC_PATH || '/';
 const ANALYZE = Boolean(process.env.ANALYZE) || false;

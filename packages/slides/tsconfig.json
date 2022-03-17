@@ -8,7 +8,7 @@
     "noEmitOnError": false,
     "resolveJsonModule": true,
     "importHelpers": true,
-    "strict": true,
+    "strict": false,
     "lib": ["ESNext", "DOM"],
     "module": "commonjs",
     "esModuleInterop": true,

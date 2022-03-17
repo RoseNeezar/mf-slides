@@ -1,16 +1,320 @@
-import Button from "./Button.tsx";
-import Chat from "./Chat.remote.tsx";
+import Button from './Button.tsx';
+import Chat from './Chat.remote.tsx';
+import { Counter } from './counter.tsx';
 
-# MDXP
+# Introduction
 
-Write your slide deck here...
+<Grid
+  gridTemplateColumns={["15% auto 10% 5%", "20% auto 10% 10%", "15% auto 10% 5%"]}
+  gridTemplateRows="100%"
+  gridTemplateAreas=". main logos ."
+>
 
-<Button />
+<Step styles={{
+  before: {opacity: 0},
+  after:  {opacity: 1, transition: 'all 0.2s ease-out'}
+}}
+as='Flex' gridArea="main" flexFlow="column nowrap" justifyContent="space-evenly" height="100%"
+sx={{'& p': {textAlign: 'left', m: 0, lineHeight: 'small', minHeight: '5%'}}}
+>
+
+### Microfrontend
+
+### Module Federation
+
+### Demo
+
+### Challenges
+
+### Vercel Deployment
+
+### QA
+
+</Step>
+
+<Step styles={{
+  base:     {height: '5%', transition: 'all 0.2s ease-in-out'},
+  before:   {opacity: 0},
+  after:    {opacity: 1},
+  current:  {transform: 'scale(1.7)'},
+}}
+as='Flex' gridArea="logos" flexFlow="column nowrap" justifyContent="space-evenly" height="100%"
+>
+
+![write](./assets/write.svg)
+
+![react](./assets/react.svg)
+
+![theming](./assets/theme.svg)
+
+![layout](./assets/layout.svg)
+
+![present](./assets/present.svg)
+
+![website](./assets/website.svg)
+
+</Step>
+</Grid>
 
 ---
 
-# MF federation
+# Microfrontend
 
-or not
+<Grid
+  gridTemplateColumns={["15% auto 10% 5%", "20% auto 10% 10%", "15% auto 10% 5%"]}
+  gridTemplateRows="100%"
+  gridTemplateAreas=". main logos ."
+>
+
+<Step styles={{
+  before: {opacity: 0},
+  after:  {opacity: 1, transition: 'all 0.2s ease-out'}
+}}
+as='Flex' gridArea="main" flexFlow="column nowrap" justifyContent="space-evenly" height="100%"
+sx={{'& p': {textAlign: 'left', m: 0, lineHeight: 'small', minHeight: '5%'}}}
+>
+
+## Motivation
+
+### 1. Multiple separate builds should form a single application.
+
+### 2. These separate builds should not have dependencies between each other,
+
+### 3. so they can be developed and deployed individually.
+
+## Methods
+
+### 1. Single Spa
+
+### 2. Module Federation
+
+</Step>
+
+</Grid>
+
+---
+
+# Module Federation
+
+<MDXPSideLayout showSlideNum={false} split={4}>
+
+### Webpack need time to load a module federation app
+
+### On the index file we need to do an import to the actual file containing the app
+
+### in this case we named it bootstrap
+
+### This is because webpack need time to evaluate the remote file and fetch them if its needed
+
+<Card bg='MDXPGray5' sx={{mb: 3}}>
+
+```sm
+//index.ts
+import("./bootstrap");
+export {};
+```
+
+</Card>
+
+<Card bg='MDXPGray5'>
+
+```sm
+//bootstrap.tsx
+ReactDOM.render(
+  <App/>,
+  document.getElementById('root')
+);
+```
+
+</Card>
+
+</MDXPSideLayout>
+
+---
+
+# Module Federation
+
+<MDXPSideLayout showSlideNum={false} split={4}>
+
+### This example shows a host app named 'slide' is consuming the chat remote module
+
+### The Chat module is exposing its bootsrap file which is basically its index file
+
+### We can consume the file as below
+
+<Card bg='MDXPBlue' sx={{mt: 3}}>
+
+```sm
+import RemoteChat from 'chat/Chat';
+```
+
+</Card>
+
+<Card bg='MDXPGray5' sx={{mb: 3}}>
+
+```sm
+Host App
+new ModuleFederationPlugin({
+      name: 'slides',
+      remotes: {
+        chat: 'chat@http://localhost:3001/remoteEntry.js',
+      },
+    }),
+```
+
+</Card>
+
+<Card bg='MDXPGray5'>
+
+```sm
+Remote App
+new ModuleFederationPlugin({
+      name: 'chat',
+      filename: 'remoteEntry.js',
+      remotes: {},
+      exposes: {
+        './Chat': './src/bootstrap',
+      },
+    }),
+```
+
+</Card>
+
+</MDXPSideLayout>
+
+---
+
+# Module Federation
+
+<MDXPSideLayout showSlideNum={false} split={3}>
+
+### We can also sent props to the remote app via the host
+
+### We can consume the file as below
+
+<Card bg='MDXPBlue' sx={{mt: 3}}>
+
+```sm
+import { useMount } from 'chat/Chat';
+```
+
+</Card>
+
+<Card bg='MDXPGray5'>
+
+```sm
+Remote App
+const useMount = (el: ReactDOM.Container, title: string) => {
+  ReactDOM.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+    el
+  );
+};
+
+const devRoot = document.querySelector('#chat_app');
+
+if (devRoot) {
+  useMount(devRoot, 'no mf');
+}
+
+export { useMount };
+```
+
+</Card>
+
+</MDXPSideLayout>
+
+---
+
+# Module Federation
+
+<MDXPSideLayout showSlideNum={false} split={6}>
+
+### We distinguish between local and remote modules.
+
+### Local modules are part of the current build while Remote modules are loaded at runtime.
+
+### Loading remote modules is an asynchronous operation.
+
+### The asynchronous operations will be executed in the next chunk loading operation(s)
+
+### that is between the remote module and the entrypoint.
+
+### Shared modules are modules that are both overridable and provided as overrides to nested container.
+
+<Card bg='MDXPGray5' sx={{mb: 3}}>
+
+```md
+new ModuleFederationPlugin({
+name: 'slides',
+filename: 'remoteEntry.js',
+remotes: {
+chat: 'chat@http://localhost:3001/remoteEntry.js',
+},
+exposes: {
+'./Chat': './src/bootstrap',
+'./RemoteButton': './src/RemoteButton',
+},
+shared: {
+...deps,
+react: {
+singleton: true,
+requiredVersion: deps.react,
+},
+'react-dom': {
+singleton: true,
+requiredVersion: deps['react-dom'],
+},
+},
+}),
+```
+
+</Card>
+
+</MDXPSideLayout>
+
+---
+
+# Demo
 
 <Chat />
+
+---
+
+# Challenges
+
+<Grid
+  gridTemplateColumns={["15% auto 10% 5%", "20% auto 10% 10%", "15% auto 10% 5%"]}
+  gridTemplateRows="100%"
+  gridTemplateAreas=". main logos ."
+>
+
+<Step styles={{
+  before: {opacity: 0},
+  after:  {opacity: 1, transition: 'all 0.2s ease-out'}
+}}
+as='Flex' gridArea="main" flexFlow="column nowrap" justifyContent="space-evenly" height="100%"
+sx={{'& p': {textAlign: 'left', m: 0, lineHeight: 'small', minHeight: '5%'}}}
+>
+
+### 1. Unit test
+
+### 2. Sharing types between federated apps
+
+### 3. Versioning
+
+</Step>
+
+</Grid>
+
+---
+
+# Vercel deployment
+
+---
+
+# Q&A
+
+???

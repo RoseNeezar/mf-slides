@@ -4,14 +4,22 @@ import { useMount } from 'chat/Chat';
 
 const Chat = () => {
   const ref = React.useRef<any>(null);
-  console.log('exp');
+
   React.useEffect(() => {
     if (!ref.current) return;
-    // console.log(ref.current, useMount)
-    useMount(ref.current);
+
+    useMount(ref.current, 'in MF');
   }, []);
 
-  return <div ref={ref} />;
+  return (
+    <div
+      style={{
+        marginTop: '150px',
+      }}
+    >
+      <div ref={ref} />
+    </div>
+  );
 };
 
 export default Chat;

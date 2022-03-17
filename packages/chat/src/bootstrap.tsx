@@ -1,26 +1,22 @@
-import React from "react";
-import ReactDOM from "react-dom";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
 
-import "./index.scss";
+import './index.scss';
 
-const useMount = (el: ReactDOM.Container) => {
+const useMount = (el: ReactDOM.Container, title: string) => {
   ReactDOM.render(
     <React.StrictMode>
-      <div className="max-w-6xl mx-auto mt-10 text-3xl">
-        <div>Name: chat</div>
-        <div>Framework: react</div>
-        <div>Language: TypeScript</div>
-        <div>CSS: Tailwind</div>
-      </div>
+      <App title={title} />
     </React.StrictMode>,
     el
   );
 };
 
-const devRoot = document.querySelector("#chat_app");
+const devRoot = document.querySelector('#chat_app');
 
 if (devRoot) {
-  useMount(devRoot);
+  useMount(devRoot, 'no mf');
 }
 
 export { useMount };
