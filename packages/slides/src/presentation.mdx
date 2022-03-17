@@ -1,6 +1,6 @@
-import Button from './Button.tsx';
-import Chat from './Chat.remote.tsx';
-import { Counter } from './counter.tsx';
+import Button from "./Button.tsx";
+import Chat from "./Chat.remote.tsx";
+import { Counter } from "./counter.tsx";
 
 # Introduction
 
@@ -86,7 +86,7 @@ sx={{'& p': {textAlign: 'left', m: 0, lineHeight: 'small', minHeight: '5%'}}}
 
 ### 1. Single Spa
 
-### 2. Module Federation
+### 2. Module Federation (MF)
 
 </Step>
 
@@ -94,7 +94,35 @@ sx={{'& p': {textAlign: 'left', m: 0, lineHeight: 'small', minHeight: '5%'}}}
 
 ---
 
-# Module Federation
+# Module Federation (MF)
+
+<Grid
+  gridTemplateColumns={["15% auto 10% 5%", "20% auto 10% 10%", "15% auto 10% 5%"]}
+  gridTemplateRows="100%"
+  gridTemplateAreas=". main logos ."
+>
+
+<Step styles={{
+  before: {opacity: 0},
+  after:  {opacity: 1, transition: 'all 0.2s ease-out'}
+}}
+as='Flex' gridArea="main" flexFlow="column nowrap" justifyContent="space-evenly" height="100%"
+sx={{'& p': {textAlign: 'left', m: 0, lineHeight: 'small', minHeight: '5%'}}}
+>
+
+### 1. Module federation is a way to import chunks or features or dependencies from another independently deployed application
+
+### 2. Normally we distribute code through npm for it to be used within another app
+
+### 3. The idea with federation is to use actual components that are part of another webpack builder production application
+
+</Step>
+
+</Grid>
+
+---
+
+# MF - file conventions
 
 <MDXPSideLayout showSlideNum={false} split={4}>
 
@@ -104,7 +132,7 @@ sx={{'& p': {textAlign: 'left', m: 0, lineHeight: 'small', minHeight: '5%'}}}
 
 ### in this case we named it bootstrap
 
-### This is because webpack need time to evaluate the remote file and fetch them if its needed
+### This is because webpack need time to evaluate the remote file and fetch them
 
 <Card bg='MDXPGray5' sx={{mb: 3}}>
 
@@ -132,7 +160,7 @@ ReactDOM.render(
 
 ---
 
-# Module Federation
+# MF - using expose
 
 <MDXPSideLayout showSlideNum={false} split={4}>
 
@@ -145,7 +173,7 @@ ReactDOM.render(
 <Card bg='MDXPBlue' sx={{mt: 3}}>
 
 ```sm
-import RemoteChat from 'chat/Chat';
+import RemoteChat from 'componentsMF/RemoteButton';
 ```
 
 </Card>
@@ -153,11 +181,11 @@ import RemoteChat from 'chat/Chat';
 <Card bg='MDXPGray5' sx={{mb: 3}}>
 
 ```sm
-Host App
+//Host App
 new ModuleFederationPlugin({
       name: 'slides',
       remotes: {
-        chat: 'chat@http://localhost:3001/remoteEntry.js',
+        componentsMF: 'components@http://localhost:3001/remoteEntry.js',
       },
     }),
 ```
@@ -167,13 +195,13 @@ new ModuleFederationPlugin({
 <Card bg='MDXPGray5'>
 
 ```sm
-Remote App
+//Remote App
 new ModuleFederationPlugin({
-      name: 'chat',
+      name: 'components',
       filename: 'remoteEntry.js',
       remotes: {},
       exposes: {
-        './Chat': './src/bootstrap',
+        './RemoteButton': './src/components/RemoteButton.tsx',
       },
     }),
 ```
@@ -184,7 +212,7 @@ new ModuleFederationPlugin({
 
 ---
 
-# Module Federation
+# MF - pass props
 
 <MDXPSideLayout showSlideNum={false} split={3}>
 
@@ -195,7 +223,24 @@ new ModuleFederationPlugin({
 <Card bg='MDXPBlue' sx={{mt: 3}}>
 
 ```sm
-import { useMount } from 'chat/Chat';
+// Host app
+import { useMount } from 'todo/Todo';
+
+const Todo = () => {
+  const ref = React.useRef<any>(null);
+
+  React.useEffect(() => {
+    if (!ref.current) return;
+
+    useMount(ref.current, 'in MF');
+  }, []);
+
+  return (
+      <div ref={ref} />
+  );
+};
+
+export default Todo;
 ```
 
 </Card>
@@ -203,17 +248,18 @@ import { useMount } from 'chat/Chat';
 <Card bg='MDXPGray5'>
 
 ```sm
-Remote App
+//Remote App bootstrap file
+
 const useMount = (el: ReactDOM.Container, title: string) => {
   ReactDOM.render(
     <React.StrictMode>
-      <App />
+      <App title={title} />
     </React.StrictMode>,
     el
   );
 };
 
-const devRoot = document.querySelector('#chat_app');
+const devRoot = document.querySelector('#todo_app');
 
 if (devRoot) {
   useMount(devRoot, 'no mf');
@@ -248,26 +294,26 @@ export { useMount };
 
 ```md
 new ModuleFederationPlugin({
-name: 'slides',
-filename: 'remoteEntry.js',
-remotes: {
-chat: 'chat@http://localhost:3001/remoteEntry.js',
-},
-exposes: {
-'./Chat': './src/bootstrap',
-'./RemoteButton': './src/RemoteButton',
-},
-shared: {
-...deps,
-react: {
-singleton: true,
-requiredVersion: deps.react,
-},
-'react-dom': {
-singleton: true,
-requiredVersion: deps['react-dom'],
-},
-},
+    name: 'slides',
+    filename: 'remoteEntry.js',
+    remotes: {
+      chat: 'chat@http://localhost:3001/remoteEntry.js',
+    },
+    exposes: {
+      './Slides': './src/bootstrap',
+      './RemoteButton': './src/RemoteButton',
+    },
+     shared: {
+      ...deps,
+      react: {
+        singleton: true,
+        requiredVersion: deps.react,
+      },
+      'react-dom': {
+        singleton: true,
+        requiredVersion: deps['react-dom'],
+    },
+  },
 }),
 ```
 
